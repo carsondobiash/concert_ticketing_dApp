@@ -1,8 +1,20 @@
 import React, { Component } from 'react'
-import Web3 from 'web3'
 import './App.css'
+import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
+import Homepage from "./pages/Homepage";
+import Account from "./pages/Account";
+import Web3 from "web3";
+import Buying from "./pages/Buying";
+import Resale from "./pages/Resale";
+import Host from "./pages/Host"
 
 class App extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {address: 'Please connect your account!'}
+  }
+
   componentWillMount() {
     this.loadBlockchainData()
   }
@@ -22,17 +34,17 @@ class App extends Component {
     this.setState({account: account})
   }
 
-  constructor(props) {
-    super(props);
-    this.state = { account: 'Please connect your account!' }
-  }
-
   render() {
     return (
-        <div className="container">
-          <h1>Hello, World!</h1>
-          <p>Your account: {this.state.account}</p>
-        </div>
+        <Router>
+          <Switch>
+            <Route exact path="/" render={(props) => <Homepage {...props} account={this.state.account} />}/>
+            <Route path="/account" render={(props) => <Account {...props} account={this.state.account} />}/>
+            <Route path="/buy" render={(props) => <Buying {...props} account={this.state.account} />}/>
+            <Route path="/sell" render={(props) => <Resale {...props} account={this.state.account} />}/>
+            <Route path="/host" render={(props) => <Host {...props} account={this.state.account} />}/>
+          </Switch>
+        </Router>
     );
   }
 }
