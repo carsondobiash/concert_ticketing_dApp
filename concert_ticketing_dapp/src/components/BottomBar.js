@@ -10,7 +10,7 @@ const useStyles = makeStyles(theme => ({
         top: 'auto',
         bottom: 0,
         marginLeft: drawerWidth,
-        background: 'linear-gradient(45deg, #1E4D2B 30%, #59595B 90%)',
+        background: 'linear-gradient(45deg, #243B4A 30%, #28587B 70%)',
     },
     menuButton: {
         marginRight: theme.spacing(2),
@@ -23,6 +23,7 @@ const useStyles = makeStyles(theme => ({
     footer: {
         marginLeft: 20,
         fontSize: 17,
+        color:"white"
     },
 }));
 

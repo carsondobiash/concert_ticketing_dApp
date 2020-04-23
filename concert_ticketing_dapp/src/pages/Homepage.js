@@ -15,12 +15,7 @@ class Homepage extends Component {
                 <TopBar/>
                 <Paper>
                     <div className={classes.toolbar} />
-                    <h1>Homepage</h1>
-                    <div>
-                        <Button component={Link} to={'/host'}>Host</Button>
-                        <Button component={Link} to={'/buy'}>Buy</Button>
-                        <Button component={Link} to={'/sell'}>Sell</Button>
-                    </div>
+                    <e>{this.props.account}</e>
                 </Paper>
                 <BottomBar account={this.props.account}/>
             </div>
