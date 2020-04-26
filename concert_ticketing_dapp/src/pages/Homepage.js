@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import TopBar from "../components/TopBar";
 import BottomBar from "../components/BottomBar";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography/Typography";
