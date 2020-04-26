@@ -98,6 +98,7 @@ class Host extends Component {
 
     handleSubmit(event){
         event.preventDefault();
+        this.setState({eventOwner: this.props.account});
         alert("New event submitted!");
         //Event info should be sent to contract and tickets should be created based off of values in state here
         this.setState(initialState)
@@ -193,6 +194,7 @@ const styles = theme => ({
 });
 
 const initialState = {
+    eventOwner: "",
     sections: [],
     eventName: "",
     eventDate: "",
@@ -200,6 +202,6 @@ const initialState = {
     eventSectionNames: [],
     eventSectionAmount: [],
     eventSectionPrice: []
-}
+};
 
 export default withStyles(styles, { withTheme: true })(Host);
