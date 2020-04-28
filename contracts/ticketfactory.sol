@@ -23,6 +23,7 @@ contract TicketFactory is Ownable {
 
     event NewTicket(uint dna);
     event Transfer(address from, address to, uint256 tokenId);
+    event CanceledEvent(string message, uint256 time);
 
     uint dnaDigits = 16;
     uint dnaModulus = 10 ** dnaDigits;
@@ -32,7 +33,7 @@ contract TicketFactory is Ownable {
         uint dna;
     }
 
-    Ticket[] private tickets;
+    Ticket[] public tickets;
 
     mapping (uint => address) ticketToOwner;
     mapping (address => uint) ownerTicketCount;
