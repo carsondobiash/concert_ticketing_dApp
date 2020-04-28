@@ -2,24 +2,14 @@ pragma solidity >=0.5.0 <0.6.0;
 
 import "./erc721.sol";
 import "./safemath.sol";
+// import "./ticketresale.sol";
 import "./ticketfactory.sol";
 
 /// TODO: Replace this with natspec descriptions
 contract TicketOwnership is TicketFactory, ERC721 {
 
-    address public buyer;
-    uint256 public number_tickets;
 
     using SafeMath for uint256;
-
-    constructor (uint _sellingTime, address _owner, uint _price, uint _availableTickets) public {
-        availableTickets = _availableTickets;
-        price = _price*1 ether;
-        venue_owner = _owner;
-        sale_start=now;
-        sale_end = sale_start + _sellingTime*10  minutes;
-        STATE=sale_state.STARTED;
-    }
 
     mapping (uint => address) zombieApprovals;
 
@@ -34,9 +24,10 @@ contract TicketOwnership is TicketFactory, ERC721 {
     }
 
     //Change to cancael_sale
-    function cancel_sale() external onlyOwnerOf an_ongoing_sale returns (bool){
+    function cancel_sale() external an_ongoing_sale returns (bool){
         STATE=sale_state.CANCELLED;
         sale_end = now;
+        emit CanceledEvent("Auction Cancelled", now);
         return true;
     }
 
@@ -55,9 +46,9 @@ contract TicketOwnership is TicketFactory, ERC721 {
         emit Transfer(_from, _to, _tokenId);
     }
 
-    function transferFrom(address _from, address _to, uint256 _tokenId) external payable {
+    function transferFrom(address _from, address _to, uint256 _tokenId) public payable{
         // require (ticketToOwner[_tokenId] == msg.sender || zombieApprovals[_tokenId] == msg.sender);
-        require (ticketToOwner[_tokenId] == msg.sender);
+        // require (ticketToOwner[_tokenId] == msg.sender);
         _transfer(_from, _to, _tokenId);
     }
 

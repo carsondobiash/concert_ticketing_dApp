@@ -1,13 +1,13 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./erc721.sol";
-import "./safemath.sol";
-import "./ticketfactory.sol";
 
-contract TicketResale is TicketFactory, ERC721 {
+import "./ticketownership.sol";
 
-constructor (uint _sellingTime, address _owner, uint _price, uint _availableTickets) public {
-        availableTickets = ownerTicketCount[msg.sender];
+contract TicketResale is TicketOwnership{
+
+
+    constructor (uint _sellingTime, address _owner, uint _price, uint _availableTickets) public {
+        availableTickets = _availableTickets;
         price = _price*1 ether;
         venue_owner = _owner;
         sale_start=now;
@@ -15,47 +15,54 @@ constructor (uint _sellingTime, address _owner, uint _price, uint _availableTick
         STATE=sale_state.STARTED;
     }
 
-    modifier onlyOwnerOf(uint _ticketId) {
-        require(msg.sender == ticketToOwner[_ticketId]);
-        _;
-    }
+   uint resaleTicketCount = 0;
 
-    modifier an_ongoing_sale(){
-        require(now <= sale_end);
-        _;
-    }
+    mapping (uint => uint) public ticketToPrice;
+    uint[] secondHandTicketId;
 
-    modifier only_buyer(){
-        require(msg.sender==buyer);
-        _;
-    }
+    function buy_from_reseller(uint[] memory number_tickets) public payable returns (bool){
+        uint resale_price = 0 * 1 ether;
+        for(uint i = 0 ; i < number_tickets.length; i++){
+            resale_price += ticketToPrice[number_tickets[i]];
+        }
+        require(msg.value == resale_price, "You do not have enough ether");
+        for(uint i = 0 ; i < number_tickets.length; i++){
+            transferFrom(ticketToOwner[number_tickets[i]], msg.sender, number_tickets[i]);
+            delete ticketToPrice[number_tickets[i]];
+            resaleTicketCount-=1;
+        }
 
-    //Add number of tickets to be an argument
-    function buy_resale() public payable an_ongoing_sale returns (bool){
-        buyer = msg.sender;
-        number_tickets = msg.value;
 
         return true;
     }
 
+    function list_prices() public view returns (uint[] memory, uint[] memory){
+        uint[] memory availableTicketPrices;
+        uint[] memory available_ticketIDs;
+        for(uint i = 0; i < resaleTicketCount; i++){
 
-    function cancel_resale() external onlyOwnerOf an_ongoing_sale returns (bool){
-        STATE=sale_state.CANCELLED;
-        sale_end = now;
-        return true;
+        }
+        return (availableTicketPrices, available_ticketIDs);
     }
 
-    function resell() external only_buyer payable{
-        require(now < sale_end || STATE != sale_state.CANCELLED);
-        address payable _sale_owner = address(uint160(venue_owner));
-
-        _sale_owner.transfer(price * number_tickets);
-
-        address payable current = address(uint160(msg.sender));
-        //Need help here figuring out the transfer of the actual tickets
+    function list_my_tickets() public view returns (int[]  memory){
+        int[] memory my_tickets = new int[](ownerTicketCount[msg.sender]);
+        uint j = 0;
+        for(int i = 0; i < int(tickets.length); i++){
+            if(ticketToOwner[uint(i)] == msg.sender){
+                my_tickets[j] = i;
+                j+=1;
+            }
+        }
+        return my_tickets;
     }
 
-    function balanceOf(address _owner) external view returns (uint256) {
-        return ownerTicketCount[_owner];
+    function sell_my_tickets(uint[] memory my_tickets, uint my_price) public returns (bool){
+        require(ownerTicketCount[msg.sender] >= my_tickets.length, "You do not have as many tickets to sell");
+        for(uint i = 0; i < my_tickets.length; i++){
+            require(ticketToOwner[my_tickets[i]] == msg.sender);
+            ticketToPrice[my_tickets[i]] = my_price;
+            resaleTicketCount+=1;
+        }
     }
 }
