@@ -6,13 +6,35 @@ import Paper from "@material-ui/core/Paper/Paper";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import CurrencyTextField from '@unicef/material-ui-currency-textfield'
+import Web3 from "web3";
+import EventContractABI from "../contracts/Event.json"
+import TicketContractABI from "../contracts/TicketResale"
 
 class Host extends Component {
 
     constructor(props) {
         super(props);
         this.state = initialState;
-        this.handleSubmit = this.handleSubmit.bind(this)
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.getMyEvents = this.getMyEvents.bind(this);
+    }
+
+    componentWillMount() {
+        this.loadBlockchainData()
+    }
+
+    async loadBlockchainData() {
+        let ethereum = window.ethereum;
+        let web3 = window.web3;
+        if (typeof ethereum !== 'undefined') {
+            await ethereum.enable();
+            web3 = new Web3(ethereum);
+        } else if (typeof web3 !== 'undefined') {
+            web3 = new Web3(web3.currentProvider);
+        } else {
+            web3 = new Web3(new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER));
+        }
+        this.setState({events : new web3.eth.Contract(EventContractABI.abi,'0xD26F394D52244b1Efeac7076323269AA30580220')})
     }
 
     hostingForm(){
@@ -96,12 +118,29 @@ class Host extends Component {
         )
     }
 
-    handleSubmit(event){
+    async handleSubmit(event){
         event.preventDefault();
         this.setState({eventOwner: this.props.account});
-        alert("New event submitted!");
         //Event info should be sent to contract and tickets should be created based off of values in state here
-        this.setState(initialState)
+        if(this.state.eventSectionNames.length > 0) {
+            alert("New event submitted!");
+            for(let i = 0; i < this.state.eventSectionNames.length; i++){
+                await this.state.events.methods.createEvent(this.state.eventName, (new Date(this.state.eventDate).getTime() / 1000), this.state.eventDescription, this.state.eventSectionNames[i], parseInt(this.state.eventSectionAmount[i]), parseInt(this.state.eventSectionPrice[i])).send({
+                    from: this.props.account
+                });
+            }
+        }else{
+            alert("Event with no seating sections submitted! Nothing was added.")
+        }
+        this.setState({
+            sections: [],
+            eventName: "",
+            eventDate: "",
+            eventDescription: "",
+            eventSectionNames: [],
+            eventSectionAmount: [],
+            eventSectionPrice: [],
+        })
     }
 
     handleChange = (e) => {
@@ -136,8 +175,19 @@ class Host extends Component {
 
     myEvents(){
         //Code for events go here, should check against users address and see if they own any events and display them maybe have the ability to cancel or edit events if we get that far.
-        //const { classes } = this.props;
-        return(<div/>)
+        return(<div>
+            {this.state.myEvents.map(entry => [<h3>Event Name: {entry[0]}</h3>,<h3>Event Date: {String(new Date(entry[1] * 1000))}</h3>,<h3>Event Description: {entry[2]}</h3>,<h3>Event Section: {entry[3]}</h3>,<h3>Number of Tickets: {entry[4]}</h3>,<h3 style={{marginBottom: 50}}>Price of each Ticket: {entry[5]}</h3>])}
+            <Button variant="outlined" color="primary"  style = {{marginBottom: 30}} onClick={this.getMyEvents}>Refresh my Events</Button>
+        </div>)
+    }
+
+    async getMyEvents(){
+        if(this.state.events !== undefined) {
+            await this.state.events.methods.getMyEvents().call({from: this.props.account}).then((result) =>
+                this.setState({
+                    myEvents: result
+                }));
+        }
     }
 
     render() {
@@ -201,7 +251,8 @@ const initialState = {
     eventDescription: "",
     eventSectionNames: [],
     eventSectionAmount: [],
-    eventSectionPrice: []
+    eventSectionPrice: [],
+    myEvents: [],
 };
 
 export default withStyles(styles, { withTheme: true })(Host);
