@@ -33,35 +33,11 @@ contract TicketOwnership is TicketFactory, ERC721 {
         _;
     }
 
-    modifier only_buyer(){
-        require(msg.sender==buyer);
-        _;
-    }
-
-    function buy_resale() public payable an_ongoing_sale returns (bool){
-        buyer = msg.sender;
-        number_tickets = msg.value;
-
-        return true;
-    }
-
-
-    function cancel_resale() external onlyOwnerOf an_ongoing_sale returns (bool){
+    //Change to cancael_sale
+    function cancel_sale() external onlyOwnerOf an_ongoing_sale returns (bool){
         STATE=sale_state.CANCELLED;
         sale_end = now;
         return true;
-    }
-
-    function resell() external only_buyer payable{
-        require(now < sale_end || STATE != sale_state.CANCELLED);
-        address payable _sale_owner = address(uint160(venue_owner));
-
-        _sale_owner.transfer(price * number_tickets);
-
-        address payable current = address(uint160(msg.sender));
-        //Need help here figuring out the transfer of the actual tickets
-        
-
     }
 
     function balanceOf(address _owner) external view returns (uint256) {
