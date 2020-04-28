@@ -7,6 +7,9 @@ import "./ticketfactory.sol";
 /// TODO: Replace this with natspec descriptions
 contract TicketOwnership is TicketFactory, ERC721 {
 
+    address public buyer;
+    uint256 public number_tickets;
+
     using SafeMath for uint256;
 
     constructor (uint _sellingTime, address _owner, uint _price, uint _availableTickets) public {
@@ -23,6 +26,18 @@ contract TicketOwnership is TicketFactory, ERC721 {
     modifier onlyOwnerOf(uint _ticketId) {
         require(msg.sender == ticketToOwner[_ticketId]);
         _;
+    }
+
+    modifier an_ongoing_sale(){
+        require(now <= sale_end);
+        _;
+    }
+
+    //Change to cancael_sale
+    function cancel_sale() external onlyOwnerOf an_ongoing_sale returns (bool){
+        STATE=sale_state.CANCELLED;
+        sale_end = now;
+        return true;
     }
 
     function balanceOf(address _owner) external view returns (uint256) {
