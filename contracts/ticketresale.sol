@@ -11,7 +11,7 @@ contract TicketResale is TicketOwnership{
         price = _price*1 ether;
         venue_owner = _owner;
         sale_start=now;
-        sale_end = sale_start + _sellingTime*10  minutes;
+        sale_end = _sellingTime;
         STATE=sale_state.STARTED;
     }
 
