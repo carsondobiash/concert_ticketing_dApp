@@ -14,6 +14,7 @@ contract Event{
         string event_section;
         uint event_section_amount;
         uint event_section_price;
+        uint256 event_start;
     }
 
     mapping(uint => TicketResale) event_id_to_tickets;
@@ -32,6 +33,7 @@ contract Event{
         newEvent.event_section = event_section;
         newEvent.event_section_amount = event_section_amount;
         newEvent.event_section_price = event_section_price;
+        newEvent.event_start = now;
         eventIds.push(eventId);
         events_address[msg.sender].push(newEvent);
         event_id_to_tickets[eventId] = new TicketResale(event_date,msg.sender,event_section_price,event_section_amount);

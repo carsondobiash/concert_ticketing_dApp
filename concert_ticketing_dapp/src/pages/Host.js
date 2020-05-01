@@ -9,7 +9,7 @@ import CurrencyTextField from '@unicef/material-ui-currency-textfield'
 import Web3 from "web3";
 import EventContractABI from "../contracts/Event.json"
 
-const EventContractAddress = "0xFa3b3a5D79C2962B96E4dF51633196cA21bf4caf"
+const EventContractAddress = "0x95C04409CC952fa9156c93b31AC304795Fa60A8c"
 
 class Host extends Component {
 
@@ -180,7 +180,7 @@ class Host extends Component {
         //Code for events go here, should check against users address and see if they own any events and display them maybe have the ability to cancel or edit events if we get that far.
         let eventDisplay = "";
         if (this.state.myEvents !== null){
-            eventDisplay = this.state.myEvents.map(entry => [<h3>Event Name: {entry[0]}</h3>,<h3>Event Description: {entry[2]}</h3>,<h3>Event Section: {entry[3]}</h3>,<h3>Number of Tickets: {entry[4]}</h3>,<h3 style={{marginBottom: 50}}>Price of each Ticket: {entry[5]}</h3>])
+            eventDisplay = this.state.myEvents.map(entry => [<h3>Event Name: {entry[0]}</h3>,<h3>Event Date: {String(new Date((entry[6]*1000)+(entry[1]*1000)))}</h3>,<h3>Event Description: {entry[2]}</h3>,<h3>Event Section: {entry[3]}</h3>,<h3>Number of Tickets: {entry[4]}</h3>,<h3 style={{marginBottom: 50}}>Price of each Ticket: {entry[5]}</h3>])
         }
 
         return(<div>

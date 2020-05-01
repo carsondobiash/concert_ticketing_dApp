@@ -10,7 +10,7 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card/Card";
 import CardContent from "@material-ui/core/CardContent";
 
-const EventContractAddress = "0xFa3b3a5D79C2962B96E4dF51633196cA21bf4caf"
+const EventContractAddress = "0x95C04409CC952fa9156c93b31AC304795Fa60A8c"
 
 class Buying extends Component {
     constructor(props) {
@@ -60,14 +60,9 @@ class Buying extends Component {
         if(this.state.events !== undefined){
             this.loadTicketContracts()
         }
-        const networkId = await web3.eth.net.getId();
-        const chainId = await web3.eth.getChainId();
-
-        alert(networkId);
-        alert(chainId);
 
         let eventDisplay = [];
-        if(this.state.addressList !== []){
+        if(this.state.addressList !== [] && this.state.addressList !== undefined && this.state.addressList !== null){
             for(let i = 0; i < this.state.addressList.length; i++){
                 this.setState({
                     ticketContractList: this.state.ticketContractList.concat([new web3.eth.Contract(TicketContractABI.abi,this.state.addressList[i])])
@@ -126,16 +121,18 @@ class Buying extends Component {
         await this.state.events.methods.getAllAddresses().call({from: this.props.account}).then((result) =>
             this.setState({
                 addressList: result
-            }));
+            }),
+        this.eventListing()
+        );
     }
 
     async buyTicket(contract,value){
         try{
             await contract.methods._buyTickets("test",1).send({from: this.props.account,gas: '300000', value: value*10**18})
+            alert("You have purchased a ticket for this event.\nThis ticket can be found on the account page.")
         }catch (e) {
             console.log(e)
         }
-        alert("You have purchased a ticket for this event.\nThis ticket can be found on the account page.")
     }
 
     render() {

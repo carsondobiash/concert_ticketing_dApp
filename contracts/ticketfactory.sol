@@ -11,7 +11,7 @@ contract TicketFactory is Ownable {
     using SafeMath16 for uint16;
 
     uint public availableTickets;
-    address internal venue_owner;
+    address payable internal venue_owner;
     uint256 public sale_start;
     uint256 public sale_end;
     uint public price;
@@ -54,13 +54,14 @@ contract TicketFactory is Ownable {
         require(now < sale_end, "Sorry we are not selling anymore");
         require(availableTickets > 0, "Sorry we are sold out.");
         require(int(availableTickets - numberOfTickets) >= 0, "We dont have that many tickets available");
-        require(msg.value == price*numberOfTickets, "Non-negotiable price");
+        require(msg.value >= price*numberOfTickets, "Non-negotiable price");
 
         for(uint i = 0; i < numberOfTickets; i++){
             uint randDna = _generateRandomDna(_name, availableTickets);
             availableTickets = availableTickets-1;
             randDna = randDna - randDna % 100;
             _createTicket(randDna);
+            address(venue_owner).transfer(msg.value);
         }
 
 
