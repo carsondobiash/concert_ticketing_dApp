@@ -104,15 +104,16 @@ module.exports = {
     development: {
       host: "127.0.0.1",
       port: 7545,
-      network_id: "*" // Match any network id
+      network_id: "1337" // Match any network id
     }
   },
-  solc: {
-    version: "0.5.0",
-    optimizer: {
-      enabled: true,
-      runs: 200
+  compilers: {
+    solc: {
+      version: "0.5.1",
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
     }
   }
-
 }
