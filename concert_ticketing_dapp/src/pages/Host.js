@@ -8,7 +8,8 @@ import Button from "@material-ui/core/Button";
 import CurrencyTextField from '@unicef/material-ui-currency-textfield'
 import Web3 from "web3";
 import EventContractABI from "../contracts/Event.json"
-import TicketContractABI from "../contracts/TicketResale"
+
+const EventContractAddress = "0xFa3b3a5D79C2962B96E4dF51633196cA21bf4caf"
 
 class Host extends Component {
 
@@ -34,7 +35,7 @@ class Host extends Component {
         } else {
             web3 = new Web3(new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER));
         }
-        this.setState({events : new web3.eth.Contract(EventContractABI.abi,'0xD26F394D52244b1Efeac7076323269AA30580220')})
+        this.setState({events : new web3.eth.Contract(EventContractABI.abi,EventContractAddress)})
     }
 
     hostingForm(){
@@ -101,10 +102,12 @@ class Host extends Component {
                         <CurrencyTextField
                         id={"eventSectionPrice"+sections}
                         label={"Section "+ sections + " Price"}
-                        currencySymbol="$"
+                        currencySymbol="Ξ"
                         variant="outlined"
                         required
                         margin="normal"
+                        minimumValue="0"
+                        decimalPlaces={18}
                         value={this.state.eventSectionPrice[sections-1]}
                         onChange={this.handleMultiChange}
                         style = {{width: "32%", marginLeft: 8, marginTop: 8, marginBottom: 8}}
@@ -125,7 +128,7 @@ class Host extends Component {
         if(this.state.eventSectionNames.length > 0) {
             alert("New event submitted!");
             for(let i = 0; i < this.state.eventSectionNames.length; i++){
-                await this.state.events.methods.createEvent(this.state.eventName, (new Date(this.state.eventDate).getTime() / 1000), this.state.eventDescription, this.state.eventSectionNames[i], parseInt(this.state.eventSectionAmount[i]), parseInt(this.state.eventSectionPrice[i])).send({
+                await this.state.events.methods.createEvent(this.state.eventName, parseInt(String((new Date(this.state.eventDate).getTime() / 1000)-(Date.now()/1000))), this.state.eventDescription, this.state.eventSectionNames[i], parseInt(this.state.eventSectionAmount[i]), parseInt(this.state.eventSectionPrice[i])).send({
                     from: this.props.account
                 });
             }
@@ -175,8 +178,13 @@ class Host extends Component {
 
     myEvents(){
         //Code for events go here, should check against users address and see if they own any events and display them maybe have the ability to cancel or edit events if we get that far.
+        let eventDisplay = "";
+        if (this.state.myEvents !== null){
+            eventDisplay = this.state.myEvents.map(entry => [<h3>Event Name: {entry[0]}</h3>,<h3>Event Description: {entry[2]}</h3>,<h3>Event Section: {entry[3]}</h3>,<h3>Number of Tickets: {entry[4]}</h3>,<h3 style={{marginBottom: 50}}>Price of each Ticket: {entry[5]}</h3>])
+        }
+
         return(<div>
-            {this.state.myEvents.map(entry => [<h3>Event Name: {entry[0]}</h3>,<h3>Event Date: {String(new Date(entry[1] * 1000))}</h3>,<h3>Event Description: {entry[2]}</h3>,<h3>Event Section: {entry[3]}</h3>,<h3>Number of Tickets: {entry[4]}</h3>,<h3 style={{marginBottom: 50}}>Price of each Ticket: {entry[5]}</h3>])}
+            {eventDisplay}
             <Button variant="outlined" color="primary"  style = {{marginBottom: 30}} onClick={this.getMyEvents}>Refresh my Events</Button>
         </div>)
     }

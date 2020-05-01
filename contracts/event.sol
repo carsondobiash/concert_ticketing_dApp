@@ -3,7 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import "./ticketresale.sol";
 
-contract Event {
+contract Event{
 
     uint256 public eventId;
 
@@ -17,9 +17,11 @@ contract Event {
     }
 
     mapping(uint => TicketResale) event_id_to_tickets;
+    mapping(address => uint) tickets_to_event_id;
     mapping(address => eventInfo[]) events_address;
     mapping(uint256 => eventInfo) events_ids;
     uint256[] public eventIds;
+    TicketResale[] event_ticket_contracts;
 
     function createEvent(string memory event_name, uint256 event_date, string memory event_description, string memory event_section, uint event_section_amount, uint event_section_price) public {
         eventId++;
@@ -33,6 +35,8 @@ contract Event {
         eventIds.push(eventId);
         events_address[msg.sender].push(newEvent);
         event_id_to_tickets[eventId] = new TicketResale(event_date,msg.sender,event_section_price,event_section_amount);
+        tickets_to_event_id[address(event_id_to_tickets[eventId])] = eventId;
+        event_ticket_contracts.push(event_id_to_tickets[eventId]);
     }
 
     function getEvent(uint256 id) public view returns(string memory, uint256 , string memory, string memory, uint , uint ) {
@@ -46,5 +50,12 @@ contract Event {
 
     function getEventTickets(uint256 id) public view returns(TicketResale) {
         return event_id_to_tickets[id];
+    }
+
+    function getAllAddresses() public view returns(TicketResale[] memory) {
+        return event_ticket_contracts;
+    }
+    function getEventId(address tr) public view returns(uint){
+        return tickets_to_event_id[tr];
     }
 }
