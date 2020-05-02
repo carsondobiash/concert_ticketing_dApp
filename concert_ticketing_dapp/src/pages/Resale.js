@@ -111,7 +111,6 @@ class Resale extends Component {
                                                     <h4>Ticketing Section: {this.state.currentEventInfo[i][2]}</h4>
                                                 </div>
                                                 <div className={classes.ticketSub}>
-                                                    <p>Number of Tickets: {ticketCount}</p>
                                                     <p>Ticket Owners Address: {result[0]}</p>
                                                     <p>Event Creator's Address: {result[1]}</p>
                                                     <p>Sale Start Date: {String(new Date(result[2] * 1000))}</p>
