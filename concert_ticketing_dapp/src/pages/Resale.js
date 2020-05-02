@@ -11,14 +11,15 @@ import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 
-const EventContractAddress = "0xd40A64394259C31A4BbA9d29b1e0D0Bd57A6E8F4"
+const EventContractAddress = "0xf1d36d56b7c57b1cf9cf79716cf772467016bfa0"
 
 class Resale extends Component {
 
     constructor(props) {
         super(props);
         this.state = initialState;
-        this.eventListing = this.eventListing.bind(this)
+        this.eventListing = this.eventListing.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     componentWillMount() {
@@ -71,19 +72,35 @@ class Resale extends Component {
                 })
             }
         }
-        if(this.state.ticketContractList !== [] && this.state.ticketContractList !== undefined){
-            for(let i = 0; i < this.state.ticketContractList.length; i++){
+        if (this.state.ticketContractList !== [] && this.state.ticketContractList !== undefined) {
+            for (let i = 0; i < this.state.ticketContractList.length; i++) {
                 this.setState({
                     currentContract: this.state.ticketContractList[i]
                 })
-                this.getCurrentEvent(this.state.ticketContractList[i].options['address'],i);
-                let ticketCount = 0;
-                await this.state.ticketContractList[i].methods.getMyTicketCount(this.props.account).call({from: this.props.account}).then((count) =>{
+                this.getCurrentEvent(this.state.ticketContractList[i].options['address'], i);
+                let ticketCount = -1;
+                await this.state.ticketContractList[i].methods.getMyTicketCount(this.props.account).call({from: this.props.account}).then((count) => {
                     ticketCount = count;
                 });
                 if(this.state.ticketContractList[i] !== undefined) {
-                    await this.state.ticketContractList[i].methods.getAllTicketInfo().call({from: this.props.account}).then((result) => {
-                            if (result[3] > Date.now() / 1000 && this.state.currentEventInfo[i] !== undefined && ticketCount > 0) {
+                    await this.state.ticketContractList[i].methods.getMyTicketIds(this.props.account).call({from: this.props.account}).then((result) => {
+                        this.setState({
+                            resaleList: result
+                        })
+                    })
+                } if(this.state.ticketContractList[i] !== undefined) {
+                    await this.state.ticketContractList[i].methods.list_2ndHand_tickets().call({from: this.props.account}).then((result) => {
+                        let stillAvailable = this.state.resaleList.filter(e => !result.includes(e));
+                        this.setState({
+                            resaleList: stillAvailable
+                        })
+                    })
+                }
+                let ticket;
+                for (ticket in this.state.resaleList) {
+                    if (this.state.ticketContractList[i] !== undefined) {
+                        await this.state.ticketContractList[i].methods.getTicketInfo(ticket).call({from: this.props.account}).then((result) => {
+                            if (result[3] > Date.now() / 1000 && this.state.currentEventInfo[i] !== undefined && result[0].toUpperCase() === this.props.account.toUpperCase()) {
                                 eventDisplay.push(
                                     <Card className={classes.event} style={{margin: 8}}>
                                         <CardContent>
@@ -95,13 +112,15 @@ class Resale extends Component {
                                                 </div>
                                                 <div className={classes.ticketSub}>
                                                     <p>Number of Tickets: {ticketCount}</p>
+                                                    <p>Ticket Owners Address: {result[0]}</p>
                                                     <p>Event Creator's Address: {result[1]}</p>
                                                     <p>Sale Start Date: {String(new Date(result[2] * 1000))}</p>
                                                     <p>Sale End Date: {String(new Date(result[3] * 1000))}</p>
                                                 </div>
                                             </div>
                                         </CardContent>
-                                        <form className={classes.formContent}  autoComplete="off" onSubmit={this.handleSubmit}>
+                                        <form className={classes.formContent} autoComplete="off"
+                                              onSubmit={this.handleSubmit}>
                                             <CurrencyTextField
                                                 id={"eventSectionPrice"}
                                                 label={"Price"}
@@ -112,17 +131,17 @@ class Resale extends Component {
                                                 minimumValue="0"
                                                 decimalPlaces={18}
                                                 value={this.state.amount}
-                                                onChange={this.handleMultiChange}
+                                                onChange={this.handleChange}
                                                 size={"small"}
-                                                style = {{width: "20%", marginLeft: 8, marginTop: 8, marginBottom: 8}}
-                                                InputLabelProps={{ shrink: true }}/>
+                                                style={{width: "20%", marginLeft: 8, marginTop: 8, marginBottom: 8}}
+                                                InputLabelProps={{shrink: true}}/>
                                             <Button variant="outlined" color="primary" type="submit" primary={true}
                                                     style={{width: "10%", margin: 8}}>Sell Ticket</Button>
                                         </form>
                                     </Card>)
                             }
-                        }
-                    )
+                        })
+                    }
                 }
             }
         }
@@ -134,20 +153,30 @@ class Resale extends Component {
     async handleSubmit(event) {
         event.preventDefault();
         if(this.state.amount > 0){
-            let ticketId = ""
+            let ticketId = "";
             await this.state.currentContract.methods.getMyTicketIds(this.props.account).call({from: this.props.account}).then((result) => {
-                    ticketId = result[0]
+                ticketId = result[0]
                 }
             )
             if(ticketId !== ""){
+                this.setState({
+                    eventIdArray: this.state.eventIdArray.concat([ticketId])
+                })
                 try{
-                    await this.state.currentContract.methods.sell_my_tickets([ticketId],this.state.amount).send({from: this.props.account,gas: '300000'})
+                    await this.state.currentContract.methods.sell_my_tickets([ticketId],parseInt(this.state.amount)).send({from: this.props.account,gas: '300000'})
                     alert("You have listed a ticket to sell for this event.\nThis ticket can be found on the buying page.")
                 }catch (e) {
                     console.log(e)
                 }
             }
         }
+    }
+
+    async getMyTicketIds(){
+        await this.state.currentContract.methods.getMyTicketIds(this.props.account).call({from: this.props.account}).then((result) => {
+                 return result[0]
+            }
+        )
     }
 
     async getCurrentEvent(address,i){
@@ -162,7 +191,7 @@ class Resale extends Component {
                 tempArray[i] = [result[0],result[2],result[3]]
             );
             this.setState({
-                currentEventInfo: tempArray
+                currentEventInfo: tempArray,
             })
         }
     }
@@ -177,9 +206,9 @@ class Resale extends Component {
     }
 
     handleChange = (e) => {
-        let change = {};
-        change[e.target.getAttribute('id')] = e.target.value;
-        this.setState(change)
+        this.setState({
+            amount: e.target.value
+        })
     };
 
     render() {
@@ -247,7 +276,8 @@ const initialState = {
     ticketContractList: [],
     fullListing: "",
     currentEventInfo: [],
-    amount:""
+    amount:"",
+    eventIdArray: []
 };
 
 export default withStyles(styles, { withTheme: true })(Resale);

@@ -9,7 +9,7 @@ import CurrencyTextField from '@unicef/material-ui-currency-textfield'
 import Web3 from "web3";
 import EventContractABI from "../contracts/Event.json"
 
-const EventContractAddress = "0xd40A64394259C31A4BbA9d29b1e0D0Bd57A6E8F4"
+const EventContractAddress = "0xf1d36d56b7c57b1cf9cf79716cf772467016bfa0"
 
 class Host extends Component {
 
