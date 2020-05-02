@@ -10,7 +10,7 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card/Card";
 import CardContent from "@material-ui/core/CardContent";
 
-const EventContractAddress = "0xFa3b3a5D79C2962B96E4dF51633196cA21bf4caf"
+const EventContractAddress = "0x95C04409CC952fa9156c93b31AC304795Fa60A8c"
 
 class Buying extends Component {
     constructor(props) {
@@ -60,14 +60,9 @@ class Buying extends Component {
         if(this.state.events !== undefined){
             this.loadTicketContracts()
         }
-        const networkId = await web3.eth.net.getId();
-        const chainId = await web3.eth.getChainId();
-
-        alert(networkId);
-        alert(chainId);
 
         let eventDisplay = [];
-        if(this.state.addressList !== []){
+        if(this.state.addressList !== [] && this.state.addressList !== undefined && this.state.addressList !== null){
             for(let i = 0; i < this.state.addressList.length; i++){
                 this.setState({
                     ticketContractList: this.state.ticketContractList.concat([new web3.eth.Contract(TicketContractABI.abi,this.state.addressList[i])])
@@ -76,17 +71,17 @@ class Buying extends Component {
         }
         if(this.state.ticketContractList !== [] || this.state.ticketContractList !== undefined){
             for(let i = 0; i < this.state.ticketContractList.length; i++){
-                this.getCurrentEvent(this.state.ticketContractList[i].options['address']);
+                this.getCurrentEvent(this.state.ticketContractList[i].options['address'],i);
                 await this.state.ticketContractList[i].methods.getTicketInfo().call({from: this.props.account}).then((result) =>{
-                    if(result[3] > Date.now()/ 1000){
+                    if(result[3] > Date.now()/ 1000 && this.state.currentEventInfo[i] !== undefined){
                         eventDisplay.push(
                             <Card className={classes.event} style = {{margin: 8}}>
                                 <CardContent>
                                     <div className={classes.ticketContent}>
                                         <div className={classes.ticketTitle}>
-                                            <h1>{this.state.currentEventInfo[0]}</h1>
-                                            <h4>Description: {this.state.currentEventInfo[1]}</h4>
-                                            <h4>Ticketing Section: {this.state.currentEventInfo[2]}</h4>
+                                            <h1>{this.state.currentEventInfo[i][0]}</h1>
+                                            <h4>Description: {this.state.currentEventInfo[i][1]}</h4>
+                                            <h4>Ticketing Section: {this.state.currentEventInfo[i][2]}</h4>
                                         </div>
                                         <div className={classes.ticketSub}>
                                             <p>Number of Tickets: {result[0]}</p>
@@ -108,17 +103,20 @@ class Buying extends Component {
         })
     }
 
-    async getCurrentEvent(address){
+    async getCurrentEvent(address,i){
         let eventId = "";
         await this.state.events.methods.getEventId(address).call({from: this.props.account}).then((result) =>
             eventId = result
         );
         if(eventId !== ""){
+            let tempArray = []
+            tempArray = this.state.currentEventInfo
             await this.state.events.methods.getEvent(eventId).call({from: this.props.account}).then((result) =>
-                this.setState({
-                    currentEventInfo: [result[0],result[2],result[3]]
-                })
+                tempArray[i] = [result[0],result[2],result[3]]
             );
+            this.setState({
+                currentEventInfo: tempArray
+            })
         }
     }
 
@@ -126,16 +124,18 @@ class Buying extends Component {
         await this.state.events.methods.getAllAddresses().call({from: this.props.account}).then((result) =>
             this.setState({
                 addressList: result
-            }));
+            }),
+        this.eventListing()
+        );
     }
 
     async buyTicket(contract,value){
         try{
             await contract.methods._buyTickets("test",1).send({from: this.props.account,gas: '300000', value: value*10**18})
+            alert("You have purchased a ticket for this event.\nThis ticket can be found on the account page.")
         }catch (e) {
             console.log(e)
         }
-        alert("You have purchased a ticket for this event.\nThis ticket can be found on the account page.")
     }
 
     render() {

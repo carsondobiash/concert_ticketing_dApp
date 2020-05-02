@@ -6,7 +6,7 @@ import "./ticketownership.sol";
 contract TicketResale is TicketOwnership{
 
 
-    constructor (uint _sellingTime, address _owner, uint _price, uint _availableTickets) public {
+    constructor (uint _sellingTime, address payable _owner, uint _price, uint _availableTickets) public {
         availableTickets = _availableTickets;
         price = _price *1 wei;
         venue_owner = _owner;
