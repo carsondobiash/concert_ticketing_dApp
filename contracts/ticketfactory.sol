@@ -36,11 +36,13 @@ contract TicketFactory is Ownable {
     Ticket[] public tickets;
 
     mapping (uint => address) ticketToOwner;
+    mapping (address => uint[]) ownerToTickets;
     mapping (address => uint) ownerTicketCount;
 
     function _createTicket(uint _dna) internal {
         uint id = tickets.push(Ticket(_dna)) - 1;
         ticketToOwner[id] = msg.sender;
+        ownerToTickets[msg.sender].push(id);
         ownerTicketCount[msg.sender] = ownerTicketCount[msg.sender].add(1);
         emit NewTicket(_dna);
     }
@@ -67,8 +69,15 @@ contract TicketFactory is Ownable {
 
     }
 
-    function getTicketInfo() public view returns(uint, address, uint256, uint256, uint) {
-            return (availableTickets, venue_owner, sale_start, sale_end, price);
+    function getMyTicketCount(address myAddress) public view returns(uint){
+        return ownerTicketCount[myAddress];
     }
 
+    function getMyTicketIds(address myAddress) public view returns(uint[] memory){
+        return ownerToTickets[myAddress];
+    }
+
+    function getAllTicketInfo() public view returns(uint, address, uint256, uint256, uint) {
+            return (availableTickets, venue_owner, sale_start, sale_end, price);
+    }
 }

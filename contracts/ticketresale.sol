@@ -36,7 +36,7 @@ contract TicketResale is TicketOwnership{
             resale_price += ticketToPrice[number_tickets[i]];
         }
         resale_price = resale_price * 1 wei;
-        require(msg.value == resale_price, "You do not have enough ether");
+        require(msg.value >= resale_price, "You do not have enough ether");
         for(uint i = 0 ; i < number_tickets.length; i++){
             address payable seller = address(uint160(ticketToOwner[number_tickets[i]]));
             seller.transfer(ticketToPrice[number_tickets[i]] * 1 wei);
@@ -79,5 +79,9 @@ contract TicketResale is TicketOwnership{
         for(uint i = 0; i < my_tickets.length; i++){
             delete ticketToPrice[my_tickets[i]];
         }
+    }
+
+    function getTicketInfo(uint id) public view returns(address, address, uint256, uint256, uint) {
+                return (ticketToOwner[id], venue_owner, sale_start, sale_end, price);
     }
 }

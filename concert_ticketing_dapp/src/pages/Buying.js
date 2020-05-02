@@ -10,7 +10,7 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card/Card";
 import CardContent from "@material-ui/core/CardContent";
 
-const EventContractAddress = "0x95C04409CC952fa9156c93b31AC304795Fa60A8c"
+const EventContractAddress = "0xd40A64394259C31A4BbA9d29b1e0D0Bd57A6E8F4"
 
 class Buying extends Component {
     constructor(props) {
@@ -72,7 +72,7 @@ class Buying extends Component {
         if(this.state.ticketContractList !== [] || this.state.ticketContractList !== undefined){
             for(let i = 0; i < this.state.ticketContractList.length; i++){
                 this.getCurrentEvent(this.state.ticketContractList[i].options['address'],i);
-                await this.state.ticketContractList[i].methods.getTicketInfo().call({from: this.props.account}).then((result) =>{
+                await this.state.ticketContractList[i].methods.getAllTicketInfo().call({from: this.props.account}).then((result) =>{
                     if(result[3] > Date.now()/ 1000 && this.state.currentEventInfo[i] !== undefined){
                         eventDisplay.push(
                             <Card className={classes.event} style = {{margin: 8}}>
@@ -96,6 +96,43 @@ class Buying extends Component {
                             </Card>)
                     }}
                 )
+                this.state.ticketContractList[i].methods.list_2ndHand_tickets().call({from: this.props.account}).then((result) =>{
+                    this.setState({
+                        resaleList: result
+                    })
+                })
+                if(this.state.resaleList !== undefined) {
+                    let ticket;
+                    for(ticket in this.state.resaleList) {
+                        await this.state.ticketContractList[i].methods.getTicketInfo(ticket).call({from: this.props.account}).then((result) => {
+                            if (result[3] > Date.now() / 1000 && this.state.currentEventInfo[i] !== undefined) {
+                                eventDisplay.push(
+                                    <Card className={classes.event} style={{margin: 8}}>
+                                        <CardContent>
+                                            <div className={classes.ticketContent}>
+                                                <div className={classes.ticketTitle}>
+                                                    <h1>Resale Ticket</h1>
+                                                    <h1>{this.state.currentEventInfo[i][0]}</h1>
+                                                    <h4>Description: {this.state.currentEventInfo[i][1]}</h4>
+                                                    <h4>Ticketing Section: {this.state.currentEventInfo[i][2]}</h4>
+                                                </div>
+                                                <div className={classes.ticketSub}>
+                                                    <p>Ticket Owner's Address: {result[0]}</p>
+                                                    <p>Event Creator's Address: {result[1]}</p>
+                                                    <p>Sale Start Date: {String(new Date(result[2] * 1000))}</p>
+                                                    <p>Sale End Date: {String(new Date(result[3] * 1000))}</p>
+                                                    <p>Ticket Price: {result[4]}</p>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                        <Button variant="outlined" color="primary"
+                                                onClick={() => this.buyResaleTicket(this.state.ticketContractList[i], result[4])}
+                                                style={{margin: 8}}>Purchase Resale Ticket</Button>
+                                    </Card>)
+                            }
+                        })
+                    }
+                }
             }
         }
         this.setState({
@@ -132,6 +169,15 @@ class Buying extends Component {
     async buyTicket(contract,value){
         try{
             await contract.methods._buyTickets("test",1).send({from: this.props.account,gas: '300000', value: value*10**18})
+            alert("You have purchased a ticket for this event.\nThis ticket can be found on the account page.")
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
+    async buyResaleTicket(contract,value,id){
+        try{
+            await contract.methods.buy_from_reseller([id]).send({from: this.props.account,gas: '300000', value: value*10**18})
             alert("You have purchased a ticket for this event.\nThis ticket can be found on the account page.")
         }catch (e) {
             console.log(e)
