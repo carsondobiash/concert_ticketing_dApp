@@ -66,4 +66,8 @@ contract TicketFactory is Ownable {
 
     }
 
+    function getTicketInfo() public view returns(uint, address, uint256, uint256, uint) {
+            return (availableTickets, venue_owner, sale_start, sale_end, price);
+    }
+
 }

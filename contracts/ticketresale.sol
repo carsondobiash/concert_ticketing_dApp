@@ -8,7 +8,7 @@ contract TicketResale is TicketOwnership{
 
     constructor (uint _sellingTime, address _owner, uint _price, uint _availableTickets) public {
         availableTickets = _availableTickets;
-        price = _price*1 ether;
+        price = _price *1 wei;
         venue_owner = _owner;
         sale_start=now;
         sale_end = sale_start + _sellingTime*1  seconds;
