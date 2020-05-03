@@ -36,9 +36,12 @@ contract TicketResale is TicketOwnership{
             resale_price += ticketToPrice[number_tickets[i]];
         }
         resale_price = resale_price * 1 wei;
-        require(msg.value == resale_price, "You do not have enough ether");
+        require(msg.value >= resale_price, "You do not have enough ether");
+        ownerTicketCount[msg.sender] = number_tickets.length;
         for(uint i = 0 ; i < number_tickets.length; i++){
             address payable seller = address(uint160(ticketToOwner[number_tickets[i]]));
+            ownerToTickets[msg.sender].push(number_tickets[i]);
+            ticketToOwner[number_tickets[i]] = msg.sender;
             seller.transfer(ticketToPrice[number_tickets[i]] * 1 wei);
             transferFrom(ticketToOwner[number_tickets[i]], msg.sender, number_tickets[i]);
             adjust_resale_array(ticketToIndex[number_tickets[i]]);
@@ -49,6 +52,10 @@ contract TicketResale is TicketOwnership{
     }
 
     function adjust_resale_array(uint index) internal returns(bool){
+        if(resale_Tickets.length == 1){
+            delete resale_Tickets;
+            return true;
+        }
         resale_Tickets[index] = resale_Tickets[resale_Tickets.length-1];
         delete resale_Tickets[resale_Tickets.length-1];
         return true;
@@ -79,5 +86,9 @@ contract TicketResale is TicketOwnership{
         for(uint i = 0; i < my_tickets.length; i++){
             delete ticketToPrice[my_tickets[i]];
         }
+    }
+
+    function getTicketInfo(uint id) public view returns(address, address, uint256, uint256, uint) {
+                return (ticketToOwner[id], venue_owner, sale_start, sale_end, ticketToPrice[id]);
     }
 }

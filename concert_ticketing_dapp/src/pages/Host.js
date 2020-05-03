@@ -9,7 +9,7 @@ import CurrencyTextField from '@unicef/material-ui-currency-textfield'
 import Web3 from "web3";
 import EventContractABI from "../contracts/Event.json"
 
-const EventContractAddress = "0x95C04409CC952fa9156c93b31AC304795Fa60A8c"
+const EventContractAddress = "0xf1d36d56b7c57b1cf9cf79716cf772467016bfa0"
 
 class Host extends Component {
 
@@ -36,6 +36,7 @@ class Host extends Component {
             web3 = new Web3(new Web3.providers.HttpProvider(process.env.WEB3_PROVIDER));
         }
         this.setState({events : new web3.eth.Contract(EventContractABI.abi,EventContractAddress)})
+        this.getMyEvents()
     }
 
     hostingForm(){
