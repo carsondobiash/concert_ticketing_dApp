@@ -11,7 +11,7 @@ import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
 import CurrencyTextField from "@unicef/material-ui-currency-textfield";
 
-const EventContractAddress = "0xf1d36d56b7c57b1cf9cf79716cf772467016bfa0"
+const EventContractAddress = "0x9ef8cee36c9a2cb2250d879f74c262438f8c13e0"
 
 class Resale extends Component {
 
@@ -76,12 +76,8 @@ class Resale extends Component {
             for (let i = 0; i < this.state.ticketContractList.length; i++) {
                 this.setState({
                     currentContract: this.state.ticketContractList[i]
-                })
-                this.getCurrentEvent(this.state.ticketContractList[i].options['address'], i);
-                let ticketCount = -1;
-                await this.state.ticketContractList[i].methods.getMyTicketCount(this.props.account).call({from: this.props.account}).then((count) => {
-                    ticketCount = count;
                 });
+                this.getCurrentEvent(this.state.ticketContractList[i].options['address'], i);
                 if(this.state.ticketContractList[i] !== undefined) {
                     await this.state.ticketContractList[i].methods.getMyTicketIds(this.props.account).call({from: this.props.account}).then((result) => {
                         this.setState({
@@ -96,10 +92,9 @@ class Resale extends Component {
                         })
                     })
                 }
-                let ticket;
-                for (ticket in this.state.resaleList) {
+                for (let i =0; i < this.state.resaleList.length; i++) {
                     if (this.state.ticketContractList[i] !== undefined) {
-                        await this.state.ticketContractList[i].methods.getTicketInfo(ticket).call({from: this.props.account}).then((result) => {
+                        await this.state.ticketContractList[i].methods.getTicketInfo(this.state.resaleList[i]).call({from: this.props.account}).then((result) => {
                             if (result[3] > Date.now() / 1000 && this.state.currentEventInfo[i] !== undefined && result[0].toUpperCase() === this.props.account.toUpperCase()) {
                                 eventDisplay.push(
                                     <Card className={classes.event} style={{margin: 8}}>

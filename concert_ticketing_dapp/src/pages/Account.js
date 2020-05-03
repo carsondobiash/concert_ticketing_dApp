@@ -9,7 +9,7 @@ import Web3 from "web3";
 import EventContractABI from "../contracts/Event.json";
 import TicketContractABI from "../contracts/TicketResale.json";
 
-const EventContractAddress = "0xf1d36d56b7c57b1cf9cf79716cf772467016bfa0";
+const EventContractAddress = "0x9ef8cee36c9a2cb2250d879f74c262438f8c13e0";
 
 class Account extends Component {
 
@@ -150,8 +150,8 @@ class Account extends Component {
         await this.state.events.methods.getAllAddresses().call({from: this.props.account}).then((result) =>
                 this.setState({
                     addressList: result
-                })
-            //this.tickets()
+                }),
+            this.tickets()
         );
     }
 

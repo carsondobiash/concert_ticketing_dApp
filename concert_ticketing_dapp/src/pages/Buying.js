@@ -10,7 +10,7 @@ import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card/Card";
 import CardContent from "@material-ui/core/CardContent";
 
-const EventContractAddress = "0xf1d36d56b7c57b1cf9cf79716cf772467016bfa0"
+const EventContractAddress = "0x9ef8cee36c9a2cb2250d879f74c262438f8c13e0"
 
 class Buying extends Component {
     constructor(props) {
@@ -109,10 +109,9 @@ class Buying extends Component {
                         })
                     }
                     if (this.state.resaleList !== undefined) {
-                        let ticket;
-                        for (ticket in this.state.resaleList) {
+                        for (let i =0; i < this.state.resaleList.length; i++) {
                             if (this.state.ticketContractList[i] !== undefined) {
-                                await this.state.ticketContractList[i].methods.getTicketInfo(ticket).call({from: this.props.account}).then((result) => {
+                                await this.state.ticketContractList[i].methods.getTicketInfo(this.state.resaleList[i]).call({from: this.props.account}).then((result) => {
                                     if (result[3] > Date.now() / 1000 && this.state.currentEventInfo[i] !== undefined && result[0].toUpperCase() !== this.props.account.toUpperCase()) {
                                         resaleEventDisplay.push(
                                             <Card className={classes.event} style={{margin: 8}}>
@@ -135,7 +134,7 @@ class Buying extends Component {
                                                     </div>
                                                 </CardContent>
                                                 <Button variant="outlined" color="primary"
-                                                        onClick={() => this.buyResaleTicket(this.state.ticketContractList[i], result[4], ticket)}
+                                                        onClick={() => this.buyResaleTicket(this.state.ticketContractList[i], result[4], this.state.resaleList[i])}
                                                         style={{margin: 8}}>Purchase Resale Ticket</Button>
                                             </Card>)
                                     }
