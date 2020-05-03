@@ -33,12 +33,14 @@ function Ticket(props) {
             <CardContent>
                 <div className={classes.ticketContent}>
                     <div className={classes.ticketTitle}>
-                        <h1>Concert Title</h1>
-                        <h4>Mar 14, 2021</h4>
+                        <h1>{props.name}</h1>
+                        <h4>Description: {props.description}</h4>
+                        <h4>Ticketing Section: {props.section}</h4>
                     </div>
                     <div className={classes.ticketSub}>
-                        <p>Owner: {props.account}</p>
-                        <p>Section: GA</p>
+                        <p>Ticket Owner's Address: {props.account}</p>
+                        <p>Event Creator's Address: {props.eventOwner}</p>
+                        <p>Sold On: {props.endDate}</p>
                     </div>
                 </div>
             </CardContent>
