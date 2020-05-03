@@ -47,8 +47,6 @@ contract TicketOwnership is TicketFactory, ERC721 {
     }
 
     function transferFrom(address _from, address _to, uint256 _tokenId) public payable{
-        // require (ticketToOwner[_tokenId] == msg.sender || zombieApprovals[_tokenId] == msg.sender);
-        // require (ticketToOwner[_tokenId] == msg.sender);
         _transfer(_from, _to, _tokenId);
     }
 
