@@ -23,7 +23,6 @@ contract TicketOwnership is TicketFactory, ERC721 {
         _;
     }
 
-    //Change to cancael_sale
     function cancel_sale() external an_ongoing_sale returns (bool){
         STATE=sale_state.CANCELLED;
         sale_end = now;
