@@ -19,13 +19,13 @@ Follow the instructions below:
 
 ## TO TEST THE CONTRACTS IN REMIX:
 
-1. Add all files to the Remix Library.
-2. Compile TicketResale.sol with version 0.5.17
-3. Deploy the TicketResale contract with parameters that specify:
-   -time of sale in seconds
-   -contract owner
-   -price of each ticket
-   -total available tickets
+1. Add all files to the Remix Library.  
+2. Compile TicketResale.sol with version 0.5.17  
+3. Deploy the TicketResale contract with parameters that specify:  
+   -time of sale in seconds  
+   -contract owner  
+   -price of each ticket  
+   -total available tickets  
 
 
 ## Functions: 
