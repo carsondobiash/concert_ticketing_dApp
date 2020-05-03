@@ -1,7 +1,7 @@
 # concert_ticketing_dApp
 A dApp where venues can list available tickets and customers can view the chain of ticket owners and price variations on the blockchain.
 
-##How to use:
+## How to use:
 This application requires the event.sol contract to be deployed to a test network and the webpage to be run locally.
 
 1. Copy all files in the contracts folder to remix and deploy the event.sol contract to your preferred Etherium test net.
